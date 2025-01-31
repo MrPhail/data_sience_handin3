@@ -1,7 +1,11 @@
+# Importing modules.
+
 import pandas as pd
 import sqlite3
 import numpy as np
 import streamlit as st
+
+# Retriving and cashing the data from the database.
 
 @st.cache_data
 def get_data():
@@ -19,12 +23,16 @@ metrics_list.remove("country")
 metrics_list.remove("year")
 metrics_list.remove("index")
 
+# Selecing what data to view
+
 metrics = st.multiselect("Select what data you would like to review.", list(metrics_list), "electricity_generation")
 
 if not metrics:
        st.error("Please select at at least one metric")
 else:
     pass
+
+# Selecting what nations to view.
 
 nations = st.multiselect("Choose countires", list(countries), ["Sweden", "Japan"])
 
@@ -33,16 +41,15 @@ if not nations:
 else:
     pass
 
-# Filter data based on selected countries and metrics
+# Creating a dataframe contianing selected data
+
 filtered_data = df[df["country"].isin(nations)]
 
 # Loop through selected metrics and plot the data
 for metric in metrics:
     st.subheader(f"{metric}")
-    # Create a plot for each selected metric
     metric_data = filtered_data[["year", "country", metric]]
     metric_data = metric_data.set_index("year")
-    # Plotting the data
     st.line_chart(metric_data.pivot(columns="country", values=metric))
     
 st.subheader('Raw data')
