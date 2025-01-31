@@ -5,38 +5,45 @@ import streamlit as st
 
 @st.cache_data
 def get_data():
-    con = sqlite3.connect(r"D:\Projects\Data_sience\energy.db")
+    con = sqlite3.connect(r"C:\Users\user1\Documents\School\TUC\data_sience\tasks\energy.db")
     df = pd.read_sql('''SELECT * FROM energy''', con)
-    return df.set_index("Nation")
-
+    return df
 df = get_data()
 
 countries = df["country"].unique()
 
 st.title('Global energy metrics')
-st.subheader('Raw data')
 
 metrics_list = list(df.columns)
-metrics_list.remove("Nation", "year")
+metrics_list.remove("country")
+metrics_list.remove("year")
+metrics_list.remove("index")
 
 metrics = st.multiselect("Select what data you would like to review.", list(metrics_list), "electricity_generation")
 
-nations = st.multiselect("Choose countires"), list(countries), ["sweden"]
-
-for i in metrics_list:
-    data = df.loc[metrics_list[i]]
-    data = data.loc[nations]
-    data.plot(kind="line", x='year')
-    
-'''if not metrics:
+if not metrics:
        st.error("Please select at at least one metric")
 else:
-    data1 = df.loc[metrics]
-    st.subheader
+    pass
+
+nations = st.multiselect("Choose countires", list(countries), ["Sweden", "Japan"])
 
 if not nations:
        st.error("Please select at at least one country")
 else:
-    data2 = df.loc[nations]
-    st.subheader'''
+    pass
+
+# Filter data based on selected countries and metrics
+filtered_data = df[df["country"].isin(nations)]
+
+# Loop through selected metrics and plot the data
+for metric in metrics:
+    st.subheader(f"{metric}")
+    # Create a plot for each selected metric
+    metric_data = filtered_data[["year", "country", metric]]
+    metric_data = metric_data.set_index("year")
+    # Plotting the data
+    st.line_chart(metric_data.pivot(columns="country", values=metric))
     
+st.subheader('Raw data')
+st.write(df)
